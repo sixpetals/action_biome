@@ -53,6 +53,7 @@ func _run() -> void:
 	_test_craft(game)
 	_test_cockpit(game)
 	_test_death_respawn(game)
+	_test_debug_mode(game)
 
 	game.inventory["dirt"] = 77
 	game._save_game(true)
@@ -131,6 +132,17 @@ func _test_death_respawn(game) -> void:
 	game.player.take_damage(99)
 	_check(game.player.hp == game.player.max_hp, "death restores HP")
 	_check(game.player.global_position.distance_to(game.world.get_spawn_position()) < 2.0, "death respawns at ship")
+
+
+func _test_debug_mode(game) -> void:
+	game.player.invincible_timer = 0.0
+	game._handle_key(KEY_F3)
+	_check(game.debug_mode, "F3 toggles debug mode on")
+	var hp_before: int = game.player.hp
+	game.player.take_damage(99)
+	_check(game.player.hp == hp_before, "debug mode prevents HP loss")
+	game._handle_key(KEY_F3)
+	_check(not game.debug_mode, "F3 toggles debug mode off")
 
 
 func _test_load_from_save(old_game) -> void:

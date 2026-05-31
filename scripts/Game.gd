@@ -50,6 +50,7 @@ var room_scan_timer := 0.0
 var last_room := {"enclosed": false, "valid": false, "kind": "", "level": 0, "area": 0}
 var message_timer := 0.0
 var current_message := ""
+var debug_mode := false
 
 var hud_label: Label
 var hotbar_label: Label
@@ -107,6 +108,7 @@ func _boot_world() -> void:
 	player = PlayerScript.new()
 	add_child(player)
 	player.setup(world)
+	_apply_debug_mode_to_player()
 	player.died.connect(_on_player_died)
 	player.health_changed.connect(_on_player_health_changed)
 
@@ -261,6 +263,8 @@ func _handle_key(keycode: int) -> void:
 		selected_slot = 9
 	elif keycode == KEY_E:
 		_interact()
+	elif keycode == KEY_F3:
+		_set_debug_mode(not debug_mode)
 	elif keycode == KEY_F5:
 		_save_game(true)
 	elif keycode == KEY_F9:
@@ -494,6 +498,8 @@ func _update_hud() -> void:
 		player.jump_level,
 		player.mining_level,
 	]
+	if debug_mode:
+		hud_label.text += "  DEBUG"
 
 	var room_text := "Room: open air"
 	if bool(last_room.get("enclosed", false)):
@@ -554,6 +560,18 @@ func _on_player_died() -> void:
 
 func _on_player_health_changed(_hp: int, _max_hp: int) -> void:
 	_update_hud()
+
+
+func _set_debug_mode(enabled: bool) -> void:
+	debug_mode = enabled
+	_apply_debug_mode_to_player()
+	_show_message("Debug mode ON: HP locked" if debug_mode else "Debug mode OFF", 1.6)
+	_update_hud()
+
+
+func _apply_debug_mode_to_player() -> void:
+	if player != null:
+		player.set_debug_mode(debug_mode)
 
 
 func _show_message(text: String, seconds: float) -> void:
@@ -627,6 +645,7 @@ func _register_input_actions() -> void:
 	_add_key_action("move_right", [KEY_D, KEY_RIGHT])
 	_add_key_action("jump", [KEY_SPACE])
 	_add_key_action("dash", [KEY_SHIFT])
+	_add_key_action("toggle_debug", [KEY_F3])
 
 
 func _add_key_action(action_name: String, keys: Array) -> void:

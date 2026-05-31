@@ -30,6 +30,7 @@ var dash_cooldown_timer := 0.0
 var hurt_timer := 0.0
 var attack_timer := 0.0
 var invincible_timer := 0.0
+var debug_mode := false
 var textures := {}
 var body_size := Vector2(22, 30)
 
@@ -125,6 +126,8 @@ func attack() -> void:
 
 
 func take_damage(amount: int) -> void:
+	if debug_mode:
+		return
 	if invincible_timer > 0.0:
 		return
 	hp -= amount
@@ -155,6 +158,10 @@ func respawn(world_position: Vector2) -> void:
 	hurt_timer = 0.0
 	emit_signal("health_changed", hp, max_hp)
 	queue_redraw()
+
+
+func set_debug_mode(enabled: bool) -> void:
+	debug_mode = enabled
 
 
 func bounce() -> void:
